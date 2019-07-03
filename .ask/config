@@ -1,20 +1,44 @@
 {
   "deploy_settings": {
     "default": {
-      "skill_id": "",
+      "skill_id": "amzn1.ask.skill.0dae74c4-3a36-4648-9fe7-e1a7efa74038",
       "was_cloned": false,
       "merge": {
         "manifest": {
           "apis": {
             "custom": {
               "endpoint": {
-                "uri": "ask-custom-dabblelab-api-starter-default"
+                "uri": "arn:aws:lambda:us-east-1:716755742714:function:ask-custom-Zomato_3-default"
               }
             }
           }
         }
       },
-      "in_skill_products": []
+      "in_skill_products": [],
+      "resources": {
+        "manifest": {
+          "eTag": "ed4ae4eb9da3fc81d87856bbadbe0c13"
+        },
+        "interactionModel": {
+          "en-US": {
+            "eTag": "96e129cd65b57b263f2c4dc2a9e40ae3"
+          }
+        },
+        "lambda": [
+          {
+            "alexaUsage": [
+              "custom/default"
+            ],
+            "arn": "arn:aws:lambda:us-east-1:716755742714:function:ask-custom-Zomato_3-default",
+            "awsRegion": "us-east-1",
+            "codeUri": "lambda/custom",
+            "functionName": "ask-custom-Zomato_3-default",
+            "handler": "index.handler",
+            "revisionId": "a63e417e-d6be-4260-a33c-d30ff6575578",
+            "runtime": "nodejs8.10"
+          }
+        ]
+      }
     }
   }
 }

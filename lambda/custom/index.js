@@ -2,7 +2,7 @@
 /* eslint-disable  no-console */
 
 const Alexa = require('ask-sdk-core');
-
+let flag=0;
 const GetRemoteDataHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'LaunchRequest'
@@ -11,31 +11,29 @@ const GetRemoteDataHandler = {
   },
   async handle(handlerInput) {
     let outputSpeech = 'This is the default message.';
-
-    await getRemoteData('http://api.open-notify.org/astros.json')
+    let entityid = 0
+    let entitytype ="Dunno"
+    city="koramangala"
+    await getRemoteData('https://developers.zomato.com/api/v2.1/locations?query='+city+'&apikey=3e347a7e610c904bbf827e1f4cefb1d0')
       .then((response) => {
         const data = JSON.parse(response);
-        outputSpeech = `There are currently ${data.people.length} astronauts in space. `;
-        for (let i = 0; i < data.people.length; i++) {
-          if (i === 0) {
-            //first record
-            outputSpeech = outputSpeech + 'Their names are: ' + data.people[i].name + ', '
-          } else if (i === data.people.length - 1) {
-            //last record
-            outputSpeech = outputSpeech + 'and ' + data.people[i].name + '.'
-          } else {
-            //middle record(s)
-            outputSpeech = outputSpeech + data.people[i].name + ', '
-          }
-        }
+        entityid=data.location_suggestions[0].entity_id;
+        entitytype=data.location_suggestions[0].entity_type;
+        //outputSpeech = `The entity id of ${city} is ${entitytype} `;
       })
       .catch((err) => {
         //set an optional error message here
         //outputSpeech = err.message;
       });
+    await getRemoteData('https://developers.zomato.com/api/v2.1/location_details?entity_id='+entityid+'&entity_type='+entitytype+'&apikey=3e347a7e610c904bbf827e1f4cefb1d0')
+      .then((response2)=>{
+      const data2=JSON.parse(response2);
+      outputSpeech='There are a lot of restaurants in a lot of cities, which city would you like to know about?';
+    })
 
     return handlerInput.responseBuilder
       .speak(outputSpeech)
+      .reprompt(outputSpeech)
       .getResponse();
 
   },
@@ -56,6 +54,77 @@ const HelpIntentHandler = {
   },
 };
 
+const CityNameIntentHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && (handlerInput.requestEnvelope.request.intent.name === 'CityNameIntent'||handlerInput.requestEnvelope.request.intent.name==='AMAZON.YesIntent');
+  },
+  handle(handlerInput) {
+    //console.log("Im here");
+    let speechText;
+    if(handlerInput.requestEnvelope.request.intent.name === 'CityNameIntent'){
+      speechText = 'Which city would you like to know about?';
+  }
+    else{
+      if(flag==0){
+        speechText = 'What do you mean by yes? I do not understand. You can know about restaurants in your city by saying tell me about restaurants in followed by your city name';
+      }
+      else{
+      speechText = 'Which city would you like to know about next?';
+    }
+    }
+
+
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speechText) // <--- Here is our reprompt
+      .withSimpleCard('What did I learn', speechText)
+      .getResponse();
+  },
+};
+
+const AnswerIntentHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && handlerInput.requestEnvelope.request.intent.name === 'AnswerIntent';
+  },
+  async handle(handlerInput) {
+    const slots = handlerInput.requestEnvelope.request.intent.slots;
+    const city = slots['CityName'].value;
+    let speechText = `Your city is ${city}.`
+    flag=1;
+    let entityid = 0;
+    let entitytype ="Dunno";
+    await getRemoteData('https://developers.zomato.com/api/v2.1/locations?query='+city+'&apikey=3e347a7e610c904bbf827e1f4cefb1d0')
+      .then((response) => {
+        const data = JSON.parse(response);
+        entityid=data.location_suggestions[0].entity_id;
+        entitytype=data.location_suggestions[0].entity_type;
+        //outputSpeech = `The entity id of ${city} is ${entitytype} `;
+      })
+      .catch((err) => {
+        //set an optional error message here
+        //outputSpeech = err.message;
+      });
+    await getRemoteData('https://developers.zomato.com/api/v2.1/location_details?entity_id='+entityid+'&entity_type='+entitytype+'&apikey=3e347a7e610c904bbf827e1f4cefb1d0')
+      .then((response2)=>{
+      const data2=JSON.parse(response2);
+      speechText=`There are ${data2.num_restaurant} restaurants in ${city}. The best ones are ${data2.best_rated_restaurant[0].restaurant.name} and ${data2.best_rated_restaurant[1].restaurant.name}. Would you like to know about some other city?`;
+    })
+    .catch((err) => {
+      speechText="https://developers.zomato.com/api/v2.1/location_details?entity_id='+entityid+'&entity_type='+entitytype+'&apikey=3e347a7e610c904bbf827e1f4cefb1d0";
+      //set an optional error message here
+      //outputSpeech = err.message;
+    });
+
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speechText)
+      .withSimpleCard('What did I learn', speechText)
+      .getResponse();
+  },
+};
+
 const CancelAndStopIntentHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -63,7 +132,7 @@ const CancelAndStopIntentHandler = {
         || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
   },
   handle(handlerInput) {
-    const speechText = 'Goodbye!';
+    const speechText = 'Goodbye and happy eating!';
 
     return handlerInput.responseBuilder
       .speak(speechText)
@@ -117,9 +186,10 @@ exports.handler = skillBuilder
   .addRequestHandlers(
     GetRemoteDataHandler,
     HelpIntentHandler,
+    CityNameIntentHandler,
+    AnswerIntentHandler,
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
-

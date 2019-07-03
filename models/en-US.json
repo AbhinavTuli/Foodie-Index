@@ -1,37 +1,73 @@
 {
-  "interactionModel": {
-    "languageModel": {
-      "invocationName": "api starter",
-      "types": [],
-      "intents": [
-        {
-          "name": "AMAZON.CancelIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.HelpIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.StopIntent",
-          "samples": []
-        },
-        {
-          "name": "GetRemoteDataIntent",
-          "slots": [],
-          "samples": [
-            "how many people are in space",
-            "how many people are in space now",
-            "how many people are currently in space",
-            "how many humans are in space",
-            "how many humans are in space now",
-            "how many humans are currently in space",
-            "how many astronauts are in space",
-            "how many astronauts are in space now",
-            "how many astronauts are currently in space"
-          ]
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "foodie index",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "no thanks",
+                        "nope",
+                        "no"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "GetRemoteDataIntent",
+                    "slots": [],
+                    "samples": []
+                },
+                {
+                    "name": "CityNameIntent",
+                    "slots": [],
+                    "samples": [
+                        "best places to eat near me",
+                        "restaurants near me",
+                        "best places to eat",
+                        "best places to eat in city",
+                        "how many restaurants in city",
+                        "which are the best restaurants in city",
+                        "which are the restaurants in city",
+                        "tell me about the restaurants in city"
+                    ]
+                },
+                {
+                    "name": "AnswerIntent",
+                    "slots": [
+                        {
+                            "name": "CityName",
+                            "type": "AMAZON.US_CITY"
+                        }
+                    ],
+                    "samples": [
+                        "{CityName}",
+                        "tell me about {CityName}",
+                        "give me information about {CityName}"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": [
+                        "okay",
+                        "yeah",
+                        "yo",
+                        "yup",
+                        "yes"
+                    ]
+                }
+            ],
+            "types": []
         }
-      ]
     }
-  }
 }
